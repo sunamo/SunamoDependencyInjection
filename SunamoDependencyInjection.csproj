@@ -4,8 +4,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Description>Helpers for DI</Description>
-    <Version>25.2.2.2</Version>
-    <PackageReleaseNotes>Make field from property</PackageReleaseNotes>
+    <Version>25.2.2.3</Version>
+    <PackageReleaseNotes>Make class public</PackageReleaseNotes>
     <Authors>www.sunamo.cz</Authors>
     <Copyright>www.sunamo.cz</Copyright>
     <PackageProjectUrl>https://sunamo.cz/</PackageProjectUrl>
