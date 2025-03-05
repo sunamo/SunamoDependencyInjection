@@ -1,8 +1,5 @@
 namespace SunamoDependencyInjection;
 
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-
 public class StaticLogger
 {
     /// <summary>
