@@ -1,5 +1,4 @@
 global using SunamoDependencyInjection;
-
 global using Microsoft.Extensions.Logging.Abstractions;
 global using Microsoft.Extensions.Logging;
 global using ILogger = Microsoft.Extensions.Logging.ILogger;
