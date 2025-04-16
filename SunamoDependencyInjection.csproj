@@ -4,8 +4,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Description>Helpers for DI</Description>
-    <Version>25.3.29.1</Version>
-    <PackageReleaseNotes>Updated nuget to latest versions</PackageReleaseNotes>
+    <Version>25.4.16.1</Version>
+    <PackageReleaseNotes>Added generic class</PackageReleaseNotes>
     <Authors>www.sunamo.cz</Authors>
     <Copyright>www.sunamo.cz</Copyright>
     <PackageProjectUrl>https://sunamo.cz/</PackageProjectUrl>
