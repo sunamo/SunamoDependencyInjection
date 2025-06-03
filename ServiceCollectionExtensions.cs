@@ -14,8 +14,7 @@ public class AddServicesEndingWithResult
 public static class ServiceCollectionExtensions
 {
 
-    public static AddServicesEndingWithResult AddServicesEndingWithService2(this IServiceCollection services,
-        Assembly assembly,
+    public static AddServicesEndingWithResult AddServicesEndingWithService(this IServiceCollection services,
         bool addFromReferencedSunamoAssemblies = true,
         ServiceLifetime lifetime = ServiceLifetime.Scoped)
     {
@@ -76,7 +75,7 @@ Process.GetCurrentProcess().MainModule.FileName
 
         try
         {
-            AddServicesEndingWith(services, assembly, "Service", result, false, lifetime);
+            AddServicesEndingWith(services, Assembly.GetEntryAssembly(), "Service", result, false, lifetime);
         }
         catch (Exception ex)
         {
