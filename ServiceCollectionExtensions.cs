@@ -1,26 +1,120 @@
 namespace SunamoDependencyInjection;
 
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
 using System.Reflection;
 
-// Create an extension method for IServiceCollection
+public class AddServicesEndingWithResult
+{
+    public List<string> Classes { get; set; } = new();
+    public List<string> Interfaces { get; set; } = new();
+}
+
+
 public static class ServiceCollectionExtensions
 {
-    public static void AddServicesEndingWithService(this IServiceCollection services,
+
+    public static AddServicesEndingWithResult AddServicesEndingWithService2(this IServiceCollection services,
         Assembly assembly,
+        bool addFromReferencedSunamoAssemblies = true,
         ServiceLifetime lifetime = ServiceLifetime.Scoped)
     {
-        AddServicesEndingWith(services, assembly, "Service", lifetime);
+        AddServicesEndingWithResult result = new AddServicesEndingWithResult();
+
+        /*
+Assembly.GetEntryAssembly()?.Location
+Environment.ProcessPath
+Process.GetCurrentProcess().MainModule.FileName
+*/
+
+        var d = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+        var f = Directory.GetFiles(d, "Sunamo*.dll", SearchOption.TopDirectoryOnly);
+
+        foreach (var item in f)
+        {
+            var fn = Path.GetFileNameWithoutExtension(item);
+
+            if (fn == "SunamoInterfaces")
+            {
+                continue;
+            }
+
+            Assembly.Load(fn);
+        }
+
+        if (addFromReferencedSunamoAssemblies)
+        {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var a = assemblies.Where(d => d.GetName().Name.StartsWith("Sunamo"));
+
+#if DEBUG
+            var before = a.Count();
+#endif
+
+
+            a = a.Where(d => d.GetName().Name != "SunamoInterfaces");
+
+#if DEBUG
+            var after = a.Count();
+#endif
+
+            foreach (var item in a)
+            {
+                try
+                {
+                    AddServicesEndingWith(services, item, "Service", result, true, lifetime);
+
+
+                }
+                catch (Exception ex)
+                {
+
+
+                }
+            }
+        }
+
+        try
+        {
+            AddServicesEndingWith(services, assembly, "Service", result, false, lifetime);
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+
+        return result;
     }
 
     public static void AddServicesEndingWith(
         this IServiceCollection services,
         Assembly assembly,
         string suffix,
+        AddServicesEndingWithResult addServicesEndingWithResult,
+        bool onlyExported,
         ServiceLifetime lifetime = ServiceLifetime.Scoped)
     {
-        var serviceTypes = assembly.GetTypes()
-            .Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith(suffix));
+#if DEBUG
+        if (assembly.GetName().Name == "SunamoTextBuilder")
+        {
+
+        }
+#endif
+
+        Type[] serviceTypes = [];
+
+        try
+        {
+            serviceTypes = onlyExported ? assembly.GetExportedTypes() : assembly.GetTypes();
+        }
+        catch (Exception ex)
+        {
+            // Mùže se stát že napø. používám už deprecated nuget který má závislosti kvùli kterým to neprojde. 
+            // Vznikají tak chyby jako:
+            // Could not load type 'SunamoInterfaces.Interfaces.ITextBuilder' from assembly 'SunamoInterfaces, Version=25.3.29.1, Culture=neutral, PublicKeyToken=null'.
+        }
+
+        serviceTypes = serviceTypes.Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith(suffix)).ToArray();
 
         foreach (var type in serviceTypes)
         {
@@ -32,36 +126,61 @@ public static class ServiceCollectionExtensions
 
             if (interfaceToRegister != null)
             {
-                switch (lifetime)
+                try
                 {
-                    case ServiceLifetime.Singleton:
-                        services.AddSingleton(interfaceToRegister, type);
-                        break;
-                    case ServiceLifetime.Scoped:
-                        services.AddScoped(interfaceToRegister, type);
-                        break;
-                    case ServiceLifetime.Transient:
-                        services.AddTransient(interfaceToRegister, type);
-                        break;
+                    switch (lifetime)
+                    {
+                        case ServiceLifetime.Singleton:
+                            services.AddSingleton(interfaceToRegister, type);
+                            break;
+                        case ServiceLifetime.Scoped:
+                            services.AddScoped(interfaceToRegister, type);
+                            break;
+                        case ServiceLifetime.Transient:
+                            services.AddTransient(interfaceToRegister, type);
+                            break;
+                    }
+
+                    addServicesEndingWithResult.Interfaces.Add(interfaceToRegister.FullName);
                 }
+                catch (Exception ex)
+                {
+
+                }
+
             }
             else
             {
-                // If no matching interface is found, register the type itself.
-                // Or you could log a warning or throw an exception, depending on your requirements.
-                switch (lifetime)
+                try
                 {
-                    case ServiceLifetime.Singleton:
-                        services.AddSingleton(type);
-                        break;
-                    case ServiceLifetime.Scoped:
-                        services.AddScoped(type);
-                        break;
-                    case ServiceLifetime.Transient:
-                        services.AddTransient(type);
-                        break;
+
+
+                    // If no matching interface is found, register the type itself.
+                    // Or you could log a warning or throw an exception, depending on your requirements.
+                    switch (lifetime)
+                    {
+                        case ServiceLifetime.Singleton:
+                            services.AddSingleton(type);
+                            break;
+                        case ServiceLifetime.Scoped:
+                            services.AddScoped(type);
+                            break;
+                        case ServiceLifetime.Transient:
+                            services.AddTransient(type);
+                            break;
+                    }
+
+                    addServicesEndingWithResult.Classes.Add(type.FullName);
                 }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
             }
         }
+
+
     }
 }
