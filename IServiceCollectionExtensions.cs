@@ -11,7 +11,7 @@ public class AddServicesEndingWithResult
 }
 
 
-public static class ServiceCollectionExtensions
+public static class IServiceCollectionExtensions
 {
 
     public static AddServicesEndingWithResult AddServicesEndingWithService(this IServiceCollection services,
