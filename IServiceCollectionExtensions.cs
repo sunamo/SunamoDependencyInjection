@@ -10,10 +10,8 @@ public class AddServicesEndingWithResult
     public List<string> Interfaces { get; set; } = new();
 }
 
-
 public static class IServiceCollectionExtensions
 {
-
     public static AddServicesEndingWithResult AddServicesEndingWithService(this IServiceCollection services,
         bool addFromReferencedSunamoAssemblies = true,
         ServiceLifetime lifetime = ServiceLifetime.Scoped)
@@ -108,8 +106,8 @@ Process.GetCurrentProcess().MainModule.FileName
         }
         catch (Exception ex)
         {
-            // Mùže se stát že napø. používám už deprecated nuget který má závislosti kvùli kterým to neprojde. 
-            // Vznikají tak chyby jako:
+            // Mï¿½ï¿½e se stï¿½t ï¿½e napï¿½. pouï¿½ï¿½vï¿½m uï¿½ deprecated nuget kterï¿½ mï¿½ zï¿½vislosti kvï¿½li kterï¿½m to neprojde. 
+            // Vznikajï¿½ tak chyby jako:
             // Could not load type 'SunamoInterfaces.Interfaces.ITextBuilder' from assembly 'SunamoInterfaces, Version=25.3.29.1, Culture=neutral, PublicKeyToken=null'.
         }
 
