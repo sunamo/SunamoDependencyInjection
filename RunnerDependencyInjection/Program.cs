@@ -1,12 +1,9 @@
-﻿//// See https://aka.ms/new-console-template for more information
-//Console.WriteLine("Hello, World!");
-
+;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SunamoCl.SunamoCmd;
 using SunamoCl.SunamoCmd.Args;
-
 
 partial class Program
 {
@@ -28,7 +25,7 @@ partial class Program
         logger = Provider.GetService<ILogger>() ?? throw new ServiceNotFoundException(nameof(ILogger));
     }
 
-    static void Main(string[] args)
+    static void Main()
     {
         MainAsync(args).GetAwaiter().GetResult();
     }
