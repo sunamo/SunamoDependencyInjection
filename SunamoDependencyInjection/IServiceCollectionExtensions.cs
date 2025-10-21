@@ -1,3 +1,6 @@
+// EN: Variable names have been checked and replaced with self-descriptive names
+// CZ: Názvy proměnných byly zkontrolovány a nahrazeny samopopisnými názvy
+
 namespace SunamoDependencyInjection;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -24,8 +27,8 @@ Environment.ProcessPath
 Process.GetCurrentProcess().MainModule.FileName
 */
 
-        var d = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-        var f = Directory.GetFiles(d, "Sunamo*.dll", SearchOption.TopDirectoryOnly);
+        var data = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+        var f = Directory.GetFiles(data, "Sunamo*.dll", SearchOption.TopDirectoryOnly);
 
         foreach (var item in f)
         {
@@ -42,20 +45,20 @@ Process.GetCurrentProcess().MainModule.FileName
         if (addFromReferencedSunamoAssemblies)
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            var a = assemblies.Where(d => d.GetName().Name.StartsWith("Sunamo"));
+            var argument = assemblies.Where(data => data.GetName().Name.StartsWith("Sunamo"));
 
 #if DEBUG
-            var before = a.Count();
+            var before = argument.Count();
 #endif
 
 
-            a = a.Where(d => d.GetName().Name != "SunamoInterfaces");
+            argument = argument.Where(data => data.GetName().Name != "SunamoInterfaces");
 
 #if DEBUG
-            var after = a.Count();
+            var after = argument.Count();
 #endif
 
-            foreach (var item in a)
+            foreach (var item in argument)
             {
                 try
                 {
@@ -117,7 +120,7 @@ Process.GetCurrentProcess().MainModule.FileName
         {
             // Attempt to find an interface that the class implements,
             // matching the class name without the suffix (e.g., IUserService for UserService)
-            // This is a common convention, but you might need to adjust it.
+            // This is argument common convention, but you might need to adjust it.
             var implementedInterfaces = type.GetInterfaces();
             var interfaceToRegister = implementedInterfaces.FirstOrDefault(i => i.Name == $"I{type.Name.Substring(0, type.Name.Length - suffix.Length)}");
 
@@ -153,7 +156,7 @@ Process.GetCurrentProcess().MainModule.FileName
 
 
                     // If no matching interface is found, register the type itself.
-                    // Or you could log a warning or throw an exception, depending on your requirements.
+                    // Or you could log argument warning or throw an exception, depending on your requirements.
                     switch (lifetime)
                     {
                         case ServiceLifetime.Singleton:
