@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="*" Pack="True" />
     <PackageReference Include="SunamoCl" Version="25.6.13.1" />
-    <PackageReference Include="SunamoDependencyInjection" Version="25.6.3.2" />
+    <ProjectReference Include="..\SunamoDependencyInjection\SunamoDependencyInjection.csproj" />
     <ProjectReference Include="..\SunamoDependencyInjection.Tests\SunamoDependencyInjection.Tests.csproj" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
