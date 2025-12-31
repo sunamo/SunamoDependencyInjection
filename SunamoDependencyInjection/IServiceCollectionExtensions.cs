@@ -4,16 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Reflection;
 
-public class AddServicesEndingWithResult
-{
-    public List<string> Classes { get; set; } = new();
-    public List<string> Interfaces { get; set; } = new();
-}
-
 public static class IServiceCollectionExtensions
 {
     public static AddServicesEndingWithResult AddServicesEndingWithService(this IServiceCollection services,
-        bool addFromReferencedSunamoAssemblies = true,
+        bool isAddingFromReferencedSunamoAssemblies = true,
         ServiceLifetime lifetime = ServiceLifetime.Scoped)
     {
         AddServicesEndingWithResult result = new AddServicesEndingWithResult();
@@ -24,38 +18,38 @@ Environment.ProcessPath
 Process.GetCurrentProcess().MainModule.FileName
 */
 
-        var data = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-        var f = Directory.GetFiles(data, "Sunamo*.dll", SearchOption.TopDirectoryOnly);
+        var directoryPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+        var dllFiles = Directory.GetFiles(directoryPath, "Sunamo*.dll", SearchOption.TopDirectoryOnly);
 
-        foreach (var item in f)
+        foreach (var item in dllFiles)
         {
-            var fn = Path.GetFileNameWithoutExtension(item);
+            var fileName = Path.GetFileNameWithoutExtension(item);
 
-            if (fn == "SunamoInterfaces")
+            if (fileName == "SunamoInterfaces")
             {
                 continue;
             }
 
-            Assembly.Load(fn);
+            Assembly.Load(fileName);
         }
 
-        if (addFromReferencedSunamoAssemblies)
+        if (isAddingFromReferencedSunamoAssemblies)
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            var argument = assemblies.Where(data => data.GetName().Name.StartsWith("Sunamo"));
+            var sunamoAssemblies = assemblies.Where(assembly => assembly.GetName().Name.StartsWith("Sunamo"));
 
 #if DEBUG
-            var before = argument.Count();
+            var before = sunamoAssemblies.Count();
 #endif
 
 
-            argument = argument.Where(data => data.GetName().Name != "SunamoInterfaces");
+            var filteredAssemblies = sunamoAssemblies.Where(assembly => assembly.GetName().Name != "SunamoInterfaces");
 
 #if DEBUG
-            var after = argument.Count();
+            var after = filteredAssemblies.Count();
 #endif
 
-            foreach (var item in argument)
+            foreach (var item in filteredAssemblies)
             {
                 try
                 {
@@ -88,7 +82,7 @@ Process.GetCurrentProcess().MainModule.FileName
         Assembly assembly,
         string suffix,
         AddServicesEndingWithResult addServicesEndingWithResult,
-        bool onlyExported,
+        bool isOnlyExported,
         ServiceLifetime lifetime = ServiceLifetime.Scoped)
     {
 #if DEBUG
@@ -102,7 +96,7 @@ Process.GetCurrentProcess().MainModule.FileName
 
         try
         {
-            serviceTypes = onlyExported ? assembly.GetExportedTypes() : assembly.GetTypes();
+            serviceTypes = isOnlyExported ? assembly.GetExportedTypes() : assembly.GetTypes();
         }
         catch (Exception ex)
         {
@@ -111,7 +105,7 @@ Process.GetCurrentProcess().MainModule.FileName
             // Could not load type 'SunamoInterfaces.Interfaces.ITextBuilder' from assembly 'SunamoInterfaces, Version=25.3.29.1, Culture=neutral, PublicKeyToken=null'.
         }
 
-        serviceTypes = serviceTypes.Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith(suffix)).ToArray();
+        serviceTypes = serviceTypes.Where(type => type.IsClass && !type.IsAbstract && type.Name.EndsWith(suffix)).ToArray();
 
         foreach (var type in serviceTypes)
         {
@@ -119,7 +113,7 @@ Process.GetCurrentProcess().MainModule.FileName
             // matching the class name without the suffix (e.g., IUserService for UserService)
             // This is argument common convention, but you might need to adjust it.
             var implementedInterfaces = type.GetInterfaces();
-            var interfaceToRegister = implementedInterfaces.FirstOrDefault(i => i.Name == $"I{type.Name.Substring(0, type.Name.Length - suffix.Length)}");
+            var interfaceToRegister = implementedInterfaces.FirstOrDefault(interfaceType => interfaceType.Name == $"I{type.Name.Substring(0, type.Name.Length - suffix.Length)}");
 
             if (interfaceToRegister != null)
             {

@@ -8,19 +8,19 @@ partial class Program
 
     const string appName = "";
 
-    static ServiceCollection Services = new();
-    static ServiceProvider Provider;
+    static ServiceCollection services = new();
+    static ServiceProvider provider;
     static ILogger logger;
 
     static Program()
     {
-        CmdBootStrap.AddILogger(Services, true, null, appName);
+        CmdBootStrap.AddILogger(services, true, null, appName);
 
 
 
-        Provider = Services.BuildServiceProvider();
+        provider = services.BuildServiceProvider();
 
-        logger = Provider.GetService<ILogger>() ?? throw new ServiceNotFoundException(nameof(ILogger));
+        logger = provider.GetService<ILogger>() ?? throw new ServiceNotFoundException(nameof(ILogger));
     }
 
     static void Main(string[] args)
@@ -36,7 +36,7 @@ partial class Program
             Args = args,
             AskUserIfRelease = true,
             RunInDebugAsync = RunInDebugAsync,
-            ServiceCollection = Services,
+            ServiceCollection = services,
             IsDebug =
 #if DEBUG
             true
