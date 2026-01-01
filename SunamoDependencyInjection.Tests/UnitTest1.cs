@@ -1,11 +1,15 @@
-// EN: Variable names have been checked and replaced with self-descriptive names
-// CZ: Názvy proměnných byly zkontrolovány a nahrazeny samopopisnými názvy
 namespace SunamoDependencyInjection.Tests;
 
 using Microsoft.Extensions.DependencyInjection;
 
+/// <summary>
+/// Unit tests for the SunamoDependencyInjection library.
+/// </summary>
 public class UnitTest1
 {
+    /// <summary>
+    /// Tests that AddServicesEndingWithService returns a valid result without scanning referenced assemblies.
+    /// </summary>
     [Fact]
     public void AddServicesEndingWithService_ReturnsValidResult()
     {
@@ -21,6 +25,9 @@ public class UnitTest1
         Assert.NotNull(result.Interfaces);
     }
 
+    /// <summary>
+    /// Tests that AddServicesEndingWithService returns a valid result when scanning referenced Sunamo assemblies.
+    /// </summary>
     [Fact]
     public void AddServicesEndingWithService_WithReferencedAssemblies_ReturnsValidResult()
     {

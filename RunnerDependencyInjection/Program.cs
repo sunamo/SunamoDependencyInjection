@@ -1,7 +1,9 @@
+// variables names: ok
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SunamoCl.SunamoCmd;
 using SunamoCl.SunamoCmd.Args;
+using SunamoDependencyInjection.Exceptions;
 
 partial class Program
 {
