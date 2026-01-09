@@ -72,13 +72,17 @@ public static class IServiceCollectionExtensions
             }
         }
 
-        try
+        var entryAssembly = Assembly.GetEntryAssembly();
+        if (entryAssembly != null)
         {
-            AddServicesEndingWith(services, Assembly.GetEntryAssembly(), "Service", result, false, lifetime);
-        }
-        catch (Exception)
-        {
-            throw;
+            try
+            {
+                AddServicesEndingWith(services, entryAssembly, "Service", result, false, lifetime);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         return result;
@@ -144,7 +148,10 @@ public static class IServiceCollectionExtensions
                             break;
                     }
 
-                    addServicesEndingWithResult.Interfaces.Add(interfaceToRegister.FullName);
+                    if (interfaceToRegister.FullName != null)
+                    {
+                        addServicesEndingWithResult.Interfaces.Add(interfaceToRegister.FullName);
+                    }
                 }
                 catch (Exception)
                 {
@@ -171,7 +178,10 @@ public static class IServiceCollectionExtensions
                             break;
                     }
 
-                    addServicesEndingWithResult.Classes.Add(type.FullName);
+                    if (type.FullName != null)
+                    {
+                        addServicesEndingWithResult.Classes.Add(type.FullName);
+                    }
                 }
                 catch (Exception)
                 {

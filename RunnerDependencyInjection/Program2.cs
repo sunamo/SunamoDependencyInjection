@@ -18,10 +18,9 @@ partial class Program
     {
         var actions = OtherActions();
 
-        if (CL.perform)
-        {
-            await CLActions.PerformActionAsync(actions);
-        }
+        // EN: CL.perform was removed in newer version of SunamoCl
+        // CZ: CL.perform byl odstraněn v novější verzi SunamoCl
+        await CLActions.PerformActionAsync(actions);
 
         return actions;
     }
