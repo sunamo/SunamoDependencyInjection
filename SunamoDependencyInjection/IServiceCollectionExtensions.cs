@@ -1,4 +1,3 @@
-// variables names: ok
 namespace SunamoDependencyInjection;
 
 using Microsoft.Extensions.DependencyInjection;

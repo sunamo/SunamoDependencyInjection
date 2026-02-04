@@ -1,4 +1,3 @@
-// variables names: ok
 global using SunamoDependencyInjection;
 global using Microsoft.Extensions.Logging.Abstractions;
 global using Microsoft.Extensions.Logging;
