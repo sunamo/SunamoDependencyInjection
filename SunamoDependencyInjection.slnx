@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SunamoDependencyInjection.Tests\\SunamoDependencyInjection.Tests.csproj" />
+  <Project Path="RunnerDependencyInjection\\RunnerDependencyInjection.csproj" />
+  <Project Path="SunamoDependencyInjection\SunamoDependencyInjection.csproj" />
+</Solution>
