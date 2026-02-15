@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <Description>Helpers for DI</Description>
     <Version>26.2.15.3</Version>
-    <PackageReleaseNotes>feat: Added Services also from different assemblies</PackageReleaseNotes>
+    <PackageReleaseNotes>feat: Enable auto adding Services for custom assemblies</PackageReleaseNotes>
     <Authors>www.sunamo.cz</Authors>
     <Copyright>www.sunamo.cz</Copyright>
     <PackageProjectUrl>https://sunamo.cz/</PackageProjectUrl>
