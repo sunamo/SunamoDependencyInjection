@@ -4,8 +4,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Description>Helpers for DI</Description>
-    <Version>26.2.7.2</Version>
-    <PackageReleaseNotes>feat: Enable debug symbols</PackageReleaseNotes>
+    <Version>26.2.15.3</Version>
+    <PackageReleaseNotes>feat: Added Services also from different assemblies</PackageReleaseNotes>
     <Authors>www.sunamo.cz</Authors>
     <Copyright>www.sunamo.cz</Copyright>
     <PackageProjectUrl>https://sunamo.cz/</PackageProjectUrl>

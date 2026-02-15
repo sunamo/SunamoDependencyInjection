@@ -1,6 +1,7 @@
 namespace SunamoDependencyInjection;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -13,13 +14,19 @@ public static class IServiceCollectionExtensions
     /// Adds all services ending with "Service" from Sunamo assemblies to the service collection.
     /// </summary>
     /// <param name="services">The service collection to add services to.</param>
+    /// <param name="logger">Logger for logging exceptions during assembly loading. REQUIRED.</param>
+    /// <param name="additionalAssemblyPatterns">Additional assembly name patterns to scan (e.g., "SeznamkaCz").</param>
     /// <param name="isAddingFromReferencedSunamoAssemblies">Whether to add services from referenced Sunamo assemblies.</param>
     /// <param name="lifetime">The service lifetime (Scoped, Singleton, or Transient).</param>
     /// <returns>A result containing the registered classes and interfaces.</returns>
     public static AddServicesEndingWithResult AddServicesEndingWithService(this IServiceCollection services,
+        ILogger logger,
+        string[] additionalAssemblyPatterns,
         bool isAddingFromReferencedSunamoAssemblies = true,
         ServiceLifetime lifetime = ServiceLifetime.Scoped)
     {
+        ArgumentNullException.ThrowIfNull(logger, nameof(logger));
+
         AddServicesEndingWithResult result = new AddServicesEndingWithResult();
 
         var directoryPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName ?? string.Empty);
@@ -39,7 +46,34 @@ public static class IServiceCollectionExtensions
                 continue;
             }
 
-            Assembly.Load(fileName);
+            try
+            {
+                Assembly.Load(fileName);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to load Sunamo assembly: {AssemblyName}", fileName);
+            }
+        }
+
+        if (additionalAssemblyPatterns != null && additionalAssemblyPatterns.Length > 0)
+        {
+            foreach (var pattern in additionalAssemblyPatterns)
+            {
+                var additionalDllFiles = Directory.GetFiles(directoryPath, $"{pattern}*.dll", SearchOption.TopDirectoryOnly);
+                foreach (var dllPath in additionalDllFiles)
+                {
+                    var fileName = Path.GetFileNameWithoutExtension(dllPath);
+                    try
+                    {
+                        Assembly.Load(fileName);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogWarning(ex, "Failed to load additional assembly: {AssemblyName}", fileName);
+                    }
+                }
+            }
         }
 
         if (isAddingFromReferencedSunamoAssemblies)
@@ -61,12 +95,31 @@ public static class IServiceCollectionExtensions
             {
                 try
                 {
-                    AddServicesEndingWith(services, assembly, "Service", result, true, lifetime);
+                    AddServicesEndingWith(services, assembly, "Service", result, true, lifetime, logger);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // EN: Silently ignore failures when loading services from referenced assemblies
-                    // CZ: Tiše ignorovat selhání při načítání služeb z odkazovaných assemblies
+                    logger.LogWarning(ex, "Failed to add services from Sunamo assembly: {AssemblyName}", assembly.GetName().Name);
+                }
+            }
+        }
+
+        if (additionalAssemblyPatterns != null && additionalAssemblyPatterns.Length > 0)
+        {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var pattern in additionalAssemblyPatterns)
+            {
+                var matchingAssemblies = assemblies.Where(assembly => assembly.GetName().Name?.StartsWith(pattern) == true);
+                foreach (var assembly in matchingAssemblies)
+                {
+                    try
+                    {
+                        AddServicesEndingWith(services, assembly, "Service", result, false, lifetime, logger);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogWarning(ex, "Failed to add services from additional assembly: {AssemblyName}", assembly.GetName().Name);
+                    }
                 }
             }
         }
@@ -76,10 +129,11 @@ public static class IServiceCollectionExtensions
         {
             try
             {
-                AddServicesEndingWith(services, entryAssembly, "Service", result, false, lifetime);
+                AddServicesEndingWith(services, entryAssembly, "Service", result, false, lifetime, logger);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(ex, "Failed to add services from entry assembly: {AssemblyName}", entryAssembly.GetName().Name);
                 throw;
             }
         }
@@ -96,13 +150,15 @@ public static class IServiceCollectionExtensions
     /// <param name="addServicesEndingWithResult">The result object to populate with registered services.</param>
     /// <param name="isOnlyExported">Whether to only scan exported types.</param>
     /// <param name="lifetime">The service lifetime (Scoped, Singleton, or Transient).</param>
+    /// <param name="logger">Logger for logging exceptions. REQUIRED.</param>
     public static void AddServicesEndingWith(
         this IServiceCollection services,
         Assembly assembly,
         string suffix,
         AddServicesEndingWithResult addServicesEndingWithResult,
         bool isOnlyExported,
-        ServiceLifetime lifetime = ServiceLifetime.Scoped)
+        ServiceLifetime lifetime,
+        ILogger logger)
     {
         Type[] serviceTypes = [];
 
@@ -110,13 +166,9 @@ public static class IServiceCollectionExtensions
         {
             serviceTypes = isOnlyExported ? assembly.GetExportedTypes() : assembly.GetTypes();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // EN: It can happen that e.g. I'm using a deprecated NuGet package that has dependencies that prevent it from working.
-            // CZ: Může se stát že např. používám už deprecated NuGet balíček který má závislosti kvůli kterým to neprojde.
-            // EN: Errors like this can occur:
-            // CZ: Vznikají tak chyby jako:
-            // Could not load type 'SunamoInterfaces.Interfaces.ITextBuilder' from assembly 'SunamoInterfaces, Version=25.3.29.1, Culture=neutral, PublicKeyToken=null'.
+            logger.LogWarning(ex, "Failed to get types from assembly: {AssemblyName}. This can happen with deprecated NuGet packages.", assembly.GetName().Name);
         }
 
         serviceTypes = serviceTypes.Where(type => type.IsClass && !type.IsAbstract && type.Name.EndsWith(suffix)).ToArray();
@@ -152,10 +204,9 @@ public static class IServiceCollectionExtensions
                         addServicesEndingWithResult.Interfaces.Add(interfaceToRegister.FullName);
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // EN: Silently ignore failures when registering services
-                    // CZ: Tiše ignorovat selhání při registraci služeb
+                    logger.LogWarning(ex, "Failed to register service interface: {InterfaceName} -> {TypeName}", interfaceToRegister.FullName, type.FullName);
                 }
             }
             else
@@ -182,8 +233,9 @@ public static class IServiceCollectionExtensions
                         addServicesEndingWithResult.Classes.Add(type.FullName);
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    logger.LogError(ex, "Failed to register service type: {TypeName}", type.FullName);
                     throw;
                 }
             }
