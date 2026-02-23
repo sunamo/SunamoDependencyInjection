@@ -2,6 +2,7 @@
 namespace SunamoDependencyInjection.Tests;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 
 /// <summary>
 /// Unit tests for the SunamoDependencyInjection library.
@@ -18,7 +19,7 @@ public class UnitTest1
         var services = new ServiceCollection();
 
         // Act
-        var result = services.AddServicesEndingWithService(isAddingFromReferencedSunamoAssemblies: false);
+        var result = services.AddServicesEndingWithService(NullLogger.Instance, [], isAddingFromReferencedSunamoAssemblies: false);
 
         // Assert
         Assert.NotNull(result);
@@ -36,7 +37,7 @@ public class UnitTest1
         var services = new ServiceCollection();
 
         // Act
-        var result = services.AddServicesEndingWithService(isAddingFromReferencedSunamoAssemblies: true);
+        var result = services.AddServicesEndingWithService(NullLogger.Instance, [], isAddingFromReferencedSunamoAssemblies: true);
 
         // Assert
         Assert.NotNull(result);
