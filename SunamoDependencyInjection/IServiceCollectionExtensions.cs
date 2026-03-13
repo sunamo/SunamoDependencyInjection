@@ -176,7 +176,7 @@ public static class IServiceCollectionExtensions
         }
 
         serviceTypes = serviceTypes
-            .Where(type => type.IsClass && !type.IsAbstract &&
+            .Where(type => type.IsClass && !type.IsAbstract && !type.IsGenericType &&
                 (type.Name.EndsWith(suffix) || GetRelevantInterfaces(type).Any()))
             .ToArray();
 

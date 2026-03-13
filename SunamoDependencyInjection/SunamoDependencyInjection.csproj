@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Description>Helpers for DI</Description>
-    <Version>26.3.13.7</Version>
+    <Version>26.3.13.8</Version>
     <PackageReleaseNotes>
     </PackageReleaseNotes>
     <Authors>www.sunamo.cz</Authors>
