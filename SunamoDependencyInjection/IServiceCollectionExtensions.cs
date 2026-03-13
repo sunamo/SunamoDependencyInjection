@@ -175,16 +175,22 @@ public static class IServiceCollectionExtensions
             logger.LogWarning(ex, "Failed to get types from assembly: {AssemblyName}. This can happen with deprecated NuGet packages.", assembly.GetName().Name);
         }
 
-        serviceTypes = serviceTypes.Where(type => type.IsClass && !type.IsAbstract && type.Name.EndsWith(suffix)).ToArray();
+        serviceTypes = serviceTypes
+            .Where(type => type.IsClass && !type.IsAbstract &&
+                (type.Name.EndsWith(suffix) || GetRelevantInterfaces(type).Any()))
+            .ToArray();
 
         foreach (var type in serviceTypes)
         {
-            // EN: Attempt to find an interface that the class implements, matching the class name without the suffix (e.g., IUserService for UserService)
-            // CZ: Pokus o nalezení rozhraní které třída implementuje, odpovídající názvu třídy bez suffixu (např. IUserService pro UserService)
-            // EN: This is a common convention, but you might need to adjust it.
-            // CZ: Toto je běžná konvence, ale možná ji budete muset upravit.
-            var implementedInterfaces = type.GetInterfaces();
-            var interfaceToRegister = implementedInterfaces.FirstOrDefault(interfaceType => interfaceType.Name == $"I{type.Name.Substring(0, type.Name.Length - suffix.Length)}");
+            var relevantInterfaces = GetRelevantInterfaces(type).ToArray();
+
+            // Try exact naming convention first: I{NameWithoutSuffix} (e.g. UserService -> IUser)
+            Type? interfaceToRegister = null;
+            if (type.Name.EndsWith(suffix))
+                interfaceToRegister = relevantInterfaces.FirstOrDefault(i => i.Name == $"I{type.Name[..^suffix.Length]}");
+
+            // Fallback: any non-system interface the class implements
+            interfaceToRegister ??= relevantInterfaces.FirstOrDefault();
 
             if (skipAlreadyRegistered && services.Any(d => d.ServiceType == (interfaceToRegister ?? type)))
                 continue;
@@ -207,21 +213,18 @@ public static class IServiceCollectionExtensions
                     }
 
                     if (interfaceToRegister.FullName != null)
-                    {
                         addServicesEndingWithResult.Interfaces.Add(interfaceToRegister.FullName);
-                    }
                 }
                 catch (Exception ex)
                 {
                     logger.LogWarning(ex, "Failed to register service interface: {InterfaceName} -> {TypeName}", interfaceToRegister.FullName, type.FullName);
                 }
             }
-            else
+            else if (type.Name.EndsWith(suffix))
             {
+                // No interface found — register concrete type (only for suffix-matching classes)
                 try
                 {
-                    // EN: If no matching interface is found, register the type itself. Or you could log a warning or throw an exception, depending on your requirements.
-                    // CZ: Pokud není nalezeno odpovídající rozhraní, zaregistruje se samotný typ. Nebo můžete zalogovat varování nebo vyhodit výjimku, podle vašich požadavků.
                     switch (lifetime)
                     {
                         case ServiceLifetime.Singleton:
@@ -236,9 +239,7 @@ public static class IServiceCollectionExtensions
                     }
 
                     if (type.FullName != null)
-                    {
                         addServicesEndingWithResult.Classes.Add(type.FullName);
-                    }
                 }
                 catch (Exception ex)
                 {
@@ -248,4 +249,11 @@ public static class IServiceCollectionExtensions
             }
         }
     }
+
+    private static IEnumerable<Type> GetRelevantInterfaces(Type type) =>
+        type.GetInterfaces().Where(i =>
+            !i.IsGenericType &&
+            i.Namespace != null &&
+            !i.Namespace.StartsWith("System") &&
+            !i.Namespace.StartsWith("Microsoft"));
 }
