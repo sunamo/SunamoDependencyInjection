@@ -18,12 +18,14 @@ public static class IServiceCollectionExtensions
     /// <param name="additionalAssemblyPatterns">Additional assembly name patterns to scan (e.g., "SeznamkaCz").</param>
     /// <param name="isAddingFromReferencedSunamoAssemblies">Whether to add services from referenced Sunamo assemblies.</param>
     /// <param name="lifetime">The service lifetime (Scoped, Singleton, or Transient).</param>
+    /// <param name="skipAlreadyRegistered">When true, skips types (or their matching interfaces) that are already registered in the collection.</param>
     /// <returns>A result containing the registered classes and interfaces.</returns>
     public static AddServicesEndingWithResult AddServicesEndingWithService(this IServiceCollection services,
         ILogger logger,
         string[] additionalAssemblyPatterns,
         bool isAddingFromReferencedSunamoAssemblies = true,
-        ServiceLifetime lifetime = ServiceLifetime.Scoped)
+        ServiceLifetime lifetime = ServiceLifetime.Scoped,
+        bool skipAlreadyRegistered = false)
     {
         ArgumentNullException.ThrowIfNull(logger, nameof(logger));
 
@@ -95,7 +97,7 @@ public static class IServiceCollectionExtensions
             {
                 try
                 {
-                    AddServicesEndingWith(services, assembly, "Service", result, true, lifetime, logger);
+                    AddServicesEndingWith(services, assembly, "Service", result, true, lifetime, logger, skipAlreadyRegistered);
                 }
                 catch (Exception ex)
                 {
@@ -114,7 +116,7 @@ public static class IServiceCollectionExtensions
                 {
                     try
                     {
-                        AddServicesEndingWith(services, assembly, "Service", result, false, lifetime, logger);
+                        AddServicesEndingWith(services, assembly, "Service", result, false, lifetime, logger, skipAlreadyRegistered);
                     }
                     catch (Exception ex)
                     {
@@ -151,6 +153,7 @@ public static class IServiceCollectionExtensions
     /// <param name="isOnlyExported">Whether to only scan exported types.</param>
     /// <param name="lifetime">The service lifetime (Scoped, Singleton, or Transient).</param>
     /// <param name="logger">Logger for logging exceptions. REQUIRED.</param>
+    /// <param name="skipAlreadyRegistered">When true, skips types (or their matching interfaces) that are already registered in the collection.</param>
     public static void AddServicesEndingWith(
         this IServiceCollection services,
         Assembly assembly,
@@ -158,7 +161,8 @@ public static class IServiceCollectionExtensions
         AddServicesEndingWithResult addServicesEndingWithResult,
         bool isOnlyExported,
         ServiceLifetime lifetime,
-        ILogger logger)
+        ILogger logger,
+        bool skipAlreadyRegistered = false)
     {
         Type[] serviceTypes = [];
 
@@ -181,6 +185,9 @@ public static class IServiceCollectionExtensions
             // CZ: Toto je běžná konvence, ale možná ji budete muset upravit.
             var implementedInterfaces = type.GetInterfaces();
             var interfaceToRegister = implementedInterfaces.FirstOrDefault(interfaceType => interfaceType.Name == $"I{type.Name.Substring(0, type.Name.Length - suffix.Length)}");
+
+            if (skipAlreadyRegistered && services.Any(d => d.ServiceType == (interfaceToRegister ?? type)))
+                continue;
 
             if (interfaceToRegister != null)
             {
