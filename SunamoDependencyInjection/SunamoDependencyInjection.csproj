@@ -4,12 +4,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Description>Helpers for DI</Description>
-    <Version>26.3.13.8</Version>
-    <PackageReleaseNotes>
-    </PackageReleaseNotes>
+    <Version>26.5.18.9</Version>
+    <PackageReleaseNotes>y</PackageReleaseNotes>
     <Authors>www.sunamo.cz</Authors>
     <Copyright>www.sunamo.cz</Copyright>
-    <PackageProjectUrl>https://sunamo.cz/</PackageProjectUrl>
+    <PackageProjectUrl>https://sunamo.github.io/PlatformIndependentNuGetPackages/SunamoDependencyInjection/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/sunamo/SunamoDependencyInjection.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
