@@ -1,4 +1,4 @@
-﻿// variables names: ok
+// variables names: ok
 
 using SunamoCl;
 
@@ -27,10 +27,9 @@ partial class Program
 
     private static Dictionary<string, object> OtherActions()
     {
-        Dictionary<string, Action> actions = new Dictionary<string, Action>();
-        Dictionary<string, Func<Task>> actionsAsync = new Dictionary<string, Func<Task>>();
+        Dictionary<string, Action> actions = new();
+        Dictionary<string, Func<Task>> actionsAsync = new();
 
         return CLActions.MergeActions(actions, actionsAsync);
     }
 }
-

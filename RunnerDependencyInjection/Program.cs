@@ -30,7 +30,7 @@ partial class Program
         MainAsync(args).GetAwaiter().GetResult();
     }
 
-    static async Task MainAsync(String[] args)
+    static async Task MainAsync(string[] args)
     {
         var runnedAction = await CmdBootStrap.RunWithRunArgs(new RunArgs
         {
@@ -40,11 +40,6 @@ partial class Program
             RunInDebugAsync = RunInDebugAsync,
             ServiceCollection = services,
             IsDebug =
-#if DEBUG
-            true
-#else
-false
-#endif
         });
 
         Console.WriteLine("Finished: " + runnedAction);
