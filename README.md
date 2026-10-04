@@ -1,5 +1,10 @@
 # SunamoDependencyInjection
 
+## Short description
+
+Pomocné metody pro vkládání závislostí (dependency injection) v .NET.
+
+
 Helpers for DI
 
 ## Overview
