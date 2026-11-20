@@ -5,8 +5,21 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Reflection;
 
+/// <summary>
+/// Represents the i service collection extensions type.
+/// </summary>
 public static class IServiceCollectionExtensions
 {
+    /// <summary>
+    /// Add services ending with service.
+    /// </summary>
+    /// <param name="services">The services.</param>
+    /// <param name="logger">The logger.</param>
+    /// <param name="additionalAssemblyPatterns">The additional assembly patterns.</param>
+    /// <param name="isAddingFromReferencedSunamoAssemblies">The is adding from referenced sunamo assemblies.</param>
+    /// <param name="lifetime">The lifetime.</param>
+    /// <param name="skipAlreadyRegistered">The skip already registered.</param>
+    /// <returns>The add services ending with service result.</returns>
     public static AddServicesEndingWithResult AddServicesEndingWithService(this IServiceCollection services,
         ILogger logger,
         string[] additionalAssemblyPatterns,
@@ -124,6 +137,17 @@ public static class IServiceCollectionExtensions
         return result;
     }
 
+    /// <summary>
+    /// Add services ending with.
+    /// </summary>
+    /// <param name="services">The services.</param>
+    /// <param name="assembly">The assembly.</param>
+    /// <param name="suffix">The suffix.</param>
+    /// <param name="addServicesEndingWithResult">The add services ending with result.</param>
+    /// <param name="isOnlyExported">The is only exported.</param>
+    /// <param name="lifetime">The lifetime.</param>
+    /// <param name="logger">The logger.</param>
+    /// <param name="skipAlreadyRegistered">The skip already registered.</param>
     public static void AddServicesEndingWith(
         this IServiceCollection services,
         Assembly assembly,
