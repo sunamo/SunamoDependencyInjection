@@ -8,6 +8,7 @@ tasks:
 
   dev:
     cmds:
+      - pwsh -NoProfile "E:\vs\Scripts_Projects\PowershellScripts\assert-worktree.ps1" -WorkingDir "{{.USER_WORKING_DIR}}"
       - powershell -Command "[Console]::Write([char]27 + ']0;dev' + [char]7)"
       - pwsh -NoProfile "E:\vs\Scripts_Projects\PowershellScripts\checkout-and-pull-main.ps1"
       - dotnet run -c Debug
