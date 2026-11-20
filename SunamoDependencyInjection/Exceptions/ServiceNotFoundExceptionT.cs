@@ -1,4 +1,3 @@
-// variables names: ok
 namespace SunamoDependencyInjection.Exceptions;
 
 public class ServiceNotFoundExceptionT<T> : Exception
