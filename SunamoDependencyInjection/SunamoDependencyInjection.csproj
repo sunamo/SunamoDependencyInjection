@@ -6,7 +6,6 @@
     <Nullable>enable</Nullable>
     <Description>Helpers for DI</Description>
     <Version>26.5.18.9</Version>
-    <PackageReleaseNotes>y</PackageReleaseNotes>
     <Authors>www.sunamo.cz</Authors>
     <Copyright>www.sunamo.cz</Copyright>
     <PackageProjectUrl>https://sunamo.github.io/PlatformIndependentNuGetPackages/SunamoDependencyInjection/</PackageProjectUrl>
@@ -19,7 +18,8 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedAllSources>true</EmbedAllSources>
-    <Optimize>false</Optimize>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
   <PropertyGroup>
     <DebugType>portable</DebugType>
@@ -39,4 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="all" />
-  </ItemGroup></Project>
+  </ItemGroup>  <ItemGroup>
+    <None Include="readme.md" Pack="True" PackagePath="." />
+  </ItemGroup>
+</Project>
