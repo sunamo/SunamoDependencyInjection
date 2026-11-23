@@ -1,4 +1,3 @@
-// variables names: ok
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SunamoCl.SunamoCmd;
@@ -40,6 +39,11 @@ partial class Program
             RunInDebugAsync = RunInDebugAsync,
             ServiceCollection = services,
             IsDebug =
+#if DEBUG
+                true
+#else
+                false
+#endif
         });
 
         Console.WriteLine("Finished: " + runnedAction);
